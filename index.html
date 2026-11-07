@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#e9e4d8"><meta name="description" content="2004 年八月，开学前最后一周。回到槐树巷，走近街坊，把手边的小事做完。"><link rel="preload" href="/huaishu-lane-site/assets/huaishu-handwriting-BhOamyxE.woff2" as="font" type="font/woff2" crossorigin><title>槐树巷 · 街巷的一天</title>  <script type="module" crossorigin src="/huaishu-lane-site/assets/index-BsYgIDy_.js"></script>
+  <link rel="stylesheet" crossorigin href="/huaishu-lane-site/assets/index-BmPaQsw2.css">
+</head>
+<body>
+<main class="game home-open" id="app">
+  <canvas id="scene" tabindex="-1" aria-label="槐树巷三维街景。可拖动街景左右移动，点击场景中的物件和人物。"></canvas>
+  <div class="street-stamp" aria-label="街上的时日"><span>二〇〇四 · 八月</span><strong id="street-date">第一天 · 清晨</strong><small id="street-weather">晴</small><p id="held-items" role="status"></p></div>
+  <aside id="save-notice" class="save-notice" aria-label="旧存档接续说明" hidden><strong>旧日的记录还在</strong><p id="save-notice-text" role="status"></p><button id="save-notice-close">知道了</button></aside>
+  <div class="touch-controls" aria-label="人物移动">
+    <div class="direction-pad"><button data-move="w" aria-label="向店铺走">↑</button><button data-move="a" aria-label="向西走">←</button><button data-move="s" aria-label="向路边走">↓</button><button data-move="d" aria-label="向东走">→</button></div>
+    <button id="crouch-toggle" aria-pressed="false"><span>蹲下</span><kbd>C</kbd></button>
+  </div>
+  <div class="speech-layer" id="speech-layer" aria-live="polite" aria-atomic="false"></div>
+  <div class="time-transition" id="time-transition" aria-hidden="true" hidden>
+    <div class="transition-caption"><span>槐树巷 · 街上的时光</span><strong id="transition-title"></strong></div>
+  </div>
+
+  <p id="scene-line" class="visually-hidden">街道刚刚醒来，蒸笼里升起第一缕热气。</p>
+  <div class="scene-feedback">
+    <button id="interact" class="interact-prompt" hidden><kbd>E</kbd><span id="interact-label">看一看</span></button>
+    <div class="scene-tip" id="message" role="status" aria-live="polite" aria-atomic="true"></div>
+  </div>
+  <div class="placement-feedback" id="placement-feedback" role="status" hidden></div>
+
+  <aside class="side-panel" id="environment" aria-label="设置" hidden>
+    <div class="panel-heading"><span>街巷设置</span><button id="play-toggle" class="text-button" aria-pressed="true">Ⅱ 暂停</button></div>
+    <p class="panel-caption">歇一歇，街上的时光会等你。</p>
+    <p class="control-caption">WASD / 方向键行走<br>E 看一看 · C 蹲下 / 起身<br>拖动画面，滚轮缩放</p>
+    <button class="text-button" id="show-guide">再看看操作提示</button>
+    <div class="panel-heading weather-heading"><span>天气</span><span id="weather-label">晴</span></div>
+    <div class="weather-row"><button id="weather-toggle" class="weather-button">☂ &nbsp;下场雨</button></div>
+    <p class="visually-hidden" id="weather-note">雨天里，街坊也会互相搭把手。</p>
+    <div class="reset-section">
+      <button id="restart-toggle" class="reset-toggle" aria-expanded="false" aria-controls="restart-confirm">重新开始 <span>↗</span></button>
+      <div id="restart-confirm" class="advance-confirm" hidden>
+        <p>清除本机的故事、线索和摆放记录，从第一天重新开始？</p>
+        <div><button id="restart-cancel">取消</button><button id="restart-confirm-button">确认重新开始</button></div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="journal" id="journal" aria-label="街巷手记" hidden>
+    <div class="journal-head"><div><span>开学前，记在这里</span><h2>街巷手记</h2></div><button class="close-button" id="journal-close" aria-label="关闭街巷手记">×</button></div>
+    <p class="journal-intro">走慢一点，街上的人和事会留下痕迹。</p>
+    <div class="journal-section-title">沿途观察 <span>NOTES</span></div><div id="clue-content"></div>
+    <div class="journal-section-title">街巷图鉴 <span>COLLECTION</span></div><div id="journal-content"></div>
+  </section>
+
+  <div class="bottom-area">
+    <div class="time-controls">
+      <div class="time-cue"><span>走到街口，进入</span><strong id="next-time-label">傍晚</strong><span aria-hidden="true">→</span></div>
+      <div id="advance-confirm" class="advance-confirm" hidden>
+        <p>街上的事还没有解决，要先去看看吗？</p>
+        <div><button id="advance-continue">继续调查</button><button id="advance-later">稍后再说</button></div>
+      </div>
+    </div>
+    <div class="placement-area">
+      <section class="tray" id="placement-tray" aria-label="街边物件" hidden>
+        <div class="tray-label"><span>STREET OBJECTS</span><strong>街边物件</strong><small>选择后点击路面摆放</small></div>
+        <div class="tray-items" role="group" aria-label="选择摆放物件">
+          <button data-item="stool" aria-pressed="false"><span class="item-icon">▤</span><span>小板凳<small>WOODEN STOOL</small></span></button><button data-item="plant" aria-pressed="false"><span class="item-icon">♧</span><span>盆栽<small>POTTED PLANT</small></span></button><button data-item="crate" aria-pressed="false"><span class="item-icon">▥</span><span>菜筐<small>MARKET CRATE</small></span></button>
+        </div><div class="tray-actions"><button class="cancel-placement" id="cancel-placement" hidden>取消摆放 ×</button><button class="cancel-placement" id="undo-placement">撤销摆放</button></div>
+      </section>
+      <button class="placement-toggle" id="placement-toggle" aria-expanded="false" aria-controls="placement-tray"><span aria-hidden="true">＋</span> 摆物件</button>
+    </div>
+    <div class="top-actions">
+      <button class="icon-button" id="audio-toggle" aria-pressed="true" aria-label="配乐开关"><span aria-hidden="true">♪</span><span class="audio-label">配乐</span></button>
+      <button class="icon-button" id="journal-toggle" aria-expanded="false" aria-controls="journal"><span aria-hidden="true">▤</span> 手记 <b id="journal-count">0</b></button>
+      <button class="icon-button" id="environment-toggle" aria-expanded="false" aria-controls="environment"><span aria-hidden="true">⚙</span> 设置</button>
+    </div>
+  </div>
+
+  <div class="guide" id="controls-guide" hidden>
+    <div><span class="guide-number">01</span><strong>走一走</strong><small>WASD / 方向键移动人物</small></div>
+    <div><span class="guide-number">02</span><strong>看一看</strong><small>走近后点击 / 按 E</small></div>
+    <div><span class="guide-number">03</span><strong>歇一歇</strong><small>C 蹲下，拖动画面看街景</small></div>
+    <div><span class="guide-number">04</span><strong>走到街口</strong><small>进入下一个时段</small></div>
+    <button id="guide-close" aria-label="关闭操作提示">×</button>
+  </div>
+
+  <dialog id="sign-choice" class="story-dialog" aria-labelledby="sign-choice-title" aria-describedby="sign-choice-text">
+    <span class="dialog-overline">梯子下面，小周抬起了头</span>
+    <h2 id="sign-choice-title">“你补的什么？”</h2>
+    <p id="sign-choice-text">刷子上还挂着一点漆。</p>
+    <div class="sign-choices"><button data-sign-choice="old">补回「老周」</button><button data-sign-choice="young">补成「小周」</button></div>
+  </dialog>
+  <dialog id="ending" class="ending" aria-labelledby="ending-title" hidden>
+    <span class="dialog-overline">槐树巷 · 第七天清晨</span><h2 id="ending-title">车要来了。</h2>
+    <p id="ending-copy"></p><p class="ending-afterword">这条街，还要过它的一天。</p>
+    <div class="ending-actions"><button id="ending-look">再看看清晨</button><button id="ending-journal">翻翻手记</button><button id="ending-restart">再走一周</button></div>
+  </dialog>
+
+  <section class="welcome" id="welcome" aria-labelledby="welcome-title">
+    <div class="welcome-sign">
+      <svg class="sign-art" viewBox="0 0 800 286" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="sign-rim" x2="0" y2="1"><stop stop-color="#c57954"/><stop offset=".5" stop-color="#a25940"/><stop offset="1" stop-color="#683d32"/></linearGradient>
+          <linearGradient id="sign-face" x2="0" y2="1"><stop stop-color="#52646a"/><stop offset="1" stop-color="#34484e"/></linearGradient>
+        </defs>
+        <path d="M65 10H735Q743 10 749 20L766 42Q777 47 782 57L790 82V203L782 229Q776 240 765 244L749 266Q743 276 733 276H67Q57 276 51 266L35 244Q24 240 18 229L10 203V82L18 57Q23 47 34 42L51 20Q57 10 65 10Z" fill="#4b302a" transform="translate(0 7)"/>
+        <path d="M65 10H735Q743 10 749 20L766 42Q777 47 782 57L790 82V203L782 229Q776 240 765 244L749 266Q743 276 733 276H67Q57 276 51 266L35 244Q24 240 18 229L10 203V82L18 57Q23 47 34 42L51 20Q57 10 65 10Z" fill="url(#sign-rim)" stroke="#684232" stroke-width="5"/>
+        <path d="M72 25H728Q735 25 739 32L753 53Q765 57 769 66L775 85V201L769 220Q765 229 753 233L739 254Q735 261 728 261H72Q65 261 61 254L47 233Q35 229 31 220L25 201V85L31 66Q35 57 47 53L61 32Q65 25 72 25Z" fill="url(#sign-face)" stroke="#d59a69" stroke-width="3"/>
+        <path d="M78 36H722M78 251H722" fill="none" stroke="#aeb2a0" stroke-opacity=".28" stroke-width="2"/>
+        <g fill="#dfbd88" stroke="#6e5545" stroke-width="3"><circle cx="47" cy="78" r="7"/><circle cx="753" cy="78" r="7"/><circle cx="47" cy="207" r="7"/><circle cx="753" cy="207" r="7"/></g>
+        <g fill="#dba274" opacity=".32"><path d="M93 32l23 1-5 4-16 1zM712 247l-22 1 7-5 15 1zM36 173l3 14-4-2zM765 111l-4 12 5-2z"/><path d="M141 249l20-2-5 4-15 2zM658 31l16 2-5 3-12-1z"/></g>
+      </svg>
+      <div class="sign-copy">
+        <p class="sign-overline">一条街，一天又一天</p>
+        <h2 id="welcome-title" aria-label="槐树巷"><img class="title-art" src="/huaishu-lane-site/assets/title-DNrAFY-s.svg" alt="" aria-hidden="true"></h2>
+        <p class="sign-subtitle"><span class="sign-line" aria-hidden="true"></span><span class="visually-hidden">市井烟火 · 百味人间</span><img class="tagline-art" src="/huaishu-lane-site/assets/tagline-n0h7zMP8.svg" alt="" aria-hidden="true"><span class="sign-line" aria-hidden="true"></span></p>
+      </div>
+      <svg class="sign-leaves" viewBox="0 0 92 72" aria-hidden="true"><path d="M6 64Q42 46 77 7" fill="none" stroke="#556c47" stroke-width="3"/><path d="M23 54Q8 48 13 33Q29 34 31 49Z" fill="#8da06b"/><path d="M40 43Q26 34 33 19Q48 22 48 37Z" fill="#a8b77c"/><path d="M55 31Q51 15 67 12Q72 23 61 33Z" fill="#758c5f"/><path d="M69 19Q71 3 86 5Q88 19 74 24Z" fill="#a4b47a"/></svg>
+    </div>
+    <div class="welcome-menu">
+      <button class="welcome-enter" id="enter-lane"><span class="visually-hidden" id="enter-label">走进槐树巷</span><img class="entry-art" id="enter-art" src="/huaishu-lane-site/assets/enter-CZm7kC94.svg" alt="" aria-hidden="true"><img class="entry-art entry-art-continue" id="continue-art" src="/huaishu-lane-site/assets/continue-9y0IIw_Y.svg" alt="" aria-hidden="true" hidden></button>
+      <p class="welcome-foot">WASD / 方向键行走 <span>·</span> 走近后点击探索</p>
+    </div>
+    <div class="welcome-actions" aria-label="首页设置">
+      <button class="welcome-icon" id="welcome-settings" aria-label="设置" aria-expanded="false" aria-controls="environment" title="设置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4l.5 2.2 1.6.7 1.9-1.2 2.8 2.8-1.2 1.9.7 1.6L22 10v4l-2.2.5-.7 1.6 1.2 1.9-2.8 2.8-1.9-1.2-1.6.7L14 22h-4l-.5-2.2-1.6-.7-1.9 1.2-2.8-2.8 1.2-1.9-.7-1.6L2 14v-4l2.2-.5.7-1.6L3.7 6l2.8-2.8 1.9 1.2 1.6-.7z"/><circle cx="12" cy="12" r="3.3"/></svg></button>
+      <button class="welcome-icon" id="welcome-audio" aria-label="配乐开关" aria-pressed="true" title="配乐"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path class="sound-waves" d="M15 8q4 4 0 8M18 5q7 7 0 14"/><path class="sound-muted" d="M15 9l5 6m0-6-5 6"/></svg></button>
+    </div>
+  </section>
+</main>
+</body></html>
